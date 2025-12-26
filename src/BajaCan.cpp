@@ -92,7 +92,7 @@ esp_err_t BajaCan::writeFrame(const twai_message_t* frame, uint32_t timeoutMs)
  */
 esp_err_t BajaCan::writeMessage(const CanMessage& message, uint32_t timeoutMs)
 {
-    return writeFrame(&message.getFrame(), timeoutMs);
+    return writeFrame(&message.frame, timeoutMs);
 }
 
 /**
