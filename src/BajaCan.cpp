@@ -115,6 +115,30 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
     return ret;
 }
 
+/**
+ * @brief Stops and uninstalls the TWAI driver.
+ *
+ * @return esp_err_t from twai_stop and twai_driver_uninstall
+ */
+esp_err_t BajaCan::end()
+{
+    if (!initialized)
+    {  
+        return ESP_OK; // Not initialized
+    }
+    esp_err_t ret = twai_stop();
+    if (ret != ESP_OK)
+    {
+        return ret;
+    }
+    ret = twai_driver_uninstall();
+    if (ret == ESP_OK)
+    {
+        initialized = false;
+    }
+    return ret;
+}
+
 
 
 // CanMessage class implementation
