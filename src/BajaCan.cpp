@@ -93,7 +93,7 @@ esp_err_t BajaCan::writeFrame(const twai_message_t* frame, uint32_t timeoutMs)
  */
 esp_err_t BajaCan::writeMessage(const CanMessage& message, uint32_t timeoutMs)
 {
-    return writeFrame(&message.getFrame(), timeoutMs);
+    return writeFrame(&message.frame, timeoutMs);
 }
 
 /**
@@ -112,6 +112,30 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
     {
         // Copy received frame into CanMessage object
         message = CanMessage(frame.identifier, frame.data, frame.data_length_code);
+    }
+    return ret;
+}
+
+/**
+ * @brief Stops and uninstalls the TWAI driver.
+ *
+ * @return esp_err_t from twai_stop and twai_driver_uninstall
+ */
+esp_err_t BajaCan::end()
+{
+    if (!initialized)
+    {  
+        return ESP_OK; // Not initialized
+    }
+    esp_err_t ret = twai_stop();
+    if (ret != ESP_OK)
+    {
+        return ret;
+    }
+    ret = twai_driver_uninstall();
+    if (ret == ESP_OK)
+    {
+        initialized = false;
     }
     return ret;
 }
