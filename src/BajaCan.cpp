@@ -52,7 +52,7 @@ esp_err_t BajaCan::begin()
  * @brief Reads a CAN frame from the bus with timeout. This is a blocking call.
  *
  * @param frame Pointer to twai_message_t to store received frame
- * @param timeoutMs Timeout in milliseconds
+ * @param timeoutMs Timeout in milliseconds, set to zero for non blocking, or portMAX_DELAY for blocking indefinitely
  *
  * @return esp_err_t ESP_OK on success, ESP_ERR_TIMEOUT on timeout,
  *                    other esp_err_t from twai_receive
@@ -65,6 +65,7 @@ esp_err_t BajaCan::readFrame(twai_message_t* frame, uint32_t timeoutMs)
     }   
     return twai_receive(frame, pdMS_TO_TICKS(timeoutMs));
 }
+
 
 /**
  * @brief Writes a CAN frame to the bus with timeout. This is a blocking call.
@@ -184,7 +185,7 @@ CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
 }
 
 // Getter for the underlying twai_message_t frame
-twai_message_t CanMessage::getFrame() const
+const twai_message_t& CanMessage::getFrame() const
 {
     return frame;
 }

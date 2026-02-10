@@ -7,9 +7,11 @@ public:
     CanMessage(uint32_t id, const float value);
     CanMessage(uint32_t id, const int value);
     CanMessage(uint32_t id, const uint8_t* data, uint8_t len);
-    twai_message_t getFrame() const;
+    const twai_message_t& getFrame() const;
+private:
     twai_message_t frame;
-};  
+};    
+
 
 class BajaCan {
 public:
@@ -28,6 +30,3 @@ private:
 
 };
 
-
-
-  
