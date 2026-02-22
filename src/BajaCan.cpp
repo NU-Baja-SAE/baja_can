@@ -152,9 +152,15 @@ esp_err_t BajaCan::end()
  */
 CanMessage::CanMessage(uint32_t id, const float value)
 {
-    frame.identifier = id;
-    frame.data_length_code = sizeof(float);
-    memcpy(frame.data, &value, sizeof(float));
+    // store the value in the union for typed access later
+    this->value.asFloat = value;
+    this->dataType = FLOAT;
+
+
+    // set raw data in frame
+    this->frame.identifier = id;
+    this->frame.data_length_code = sizeof(float);
+    memcpy(this->frame.data, &value, sizeof(float));
 }
 
 /**
@@ -165,9 +171,14 @@ CanMessage::CanMessage(uint32_t id, const float value)
  */
 CanMessage::CanMessage(uint32_t id, const int value)
 {
-    frame.identifier = id;
-    frame.data_length_code = sizeof(int);
-    memcpy(frame.data, &value, sizeof(int));
+    // store the value in the union for typed access later
+    this->value.asInt32 = value;
+    this->dataType = INT32;
+
+    // set raw data in frame
+    this->frame.identifier = id;
+    this->frame.data_length_code = sizeof(int);
+    memcpy(this->frame.data, &value, sizeof(int));
 }
 
 /**
@@ -179,6 +190,10 @@ CanMessage::CanMessage(uint32_t id, const int value)
  */
 CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
 {
+    // store the value in the union for typed access later
+    this->dataType = BYTES;
+    memcpy(this->value.asBytes, data, len);
+
     frame.identifier = id;
     frame.data_length_code = len;
     memcpy(frame.data, data, len);
@@ -188,5 +203,16 @@ CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
 const twai_message_t& CanMessage::getFrame() const
 {
     return frame;
+}
+
+
+/**
+ * @brief Getter for the data type of the CAN message, which indicates how to interpret the data bytes
+ * 
+ * @return CanDataType 
+ */
+CanDataType CanMessage::getDataType() const
+{
+    return dataType;
 }
 
