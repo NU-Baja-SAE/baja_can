@@ -1,4 +1,5 @@
 #include "BajaCan.h"
+#include "CanDatabase.h"
 #include "string.h"
 
 /**
@@ -110,8 +111,19 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
     esp_err_t ret = readFrame(&frame, timeoutMs);
     if (ret == ESP_OK)
     {
-        // Copy received frame into CanMessage object
-        message = CanMessage(frame.identifier, frame.data, frame.data_length_code);
+        // set the frame data in the message object for typed access later
+        message.setFrame(frame);
+        message.setValue(frame.data, frame.data_length_code); // Store raw data in union for typed getters
+        for (const auto& def : canDatabase) {
+            if (def.id == frame.identifier) {
+                message.setDataType(def.type); // Set the data type based on the database definition
+                break;
+            }
+        }
+        if (message.getDataType() == NONE) {
+        // If the message ID is not found in the database, save as bytes by default
+            message.setDataType(BYTES);
+        }
     }
     return ret;
 }
