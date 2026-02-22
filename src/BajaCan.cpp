@@ -199,20 +199,15 @@ CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
     memcpy(frame.data, data, len);
 }
 
+CanMessage::CanMessage() : dataType(NONE)
+{
+    memset(&frame, 0, sizeof(frame));
+}
+
 // Getter for the underlying twai_message_t frame
 const twai_message_t& CanMessage::getFrame() const
 {
     return frame;
 }
 
-
-/**
- * @brief Getter for the data type of the CAN message, which indicates how to interpret the data bytes
- * 
- * @return CanDataType 
- */
-CanDataType CanMessage::getDataType() const
-{
-    return dataType;
-}
 

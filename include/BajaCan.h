@@ -7,7 +7,8 @@ typedef enum {
     INT32,
     UINT8,
     BOOL,
-    BYTES
+    BYTES,
+    NONE
 } CanDataType;
 
 
@@ -16,6 +17,7 @@ public:
     CanMessage(uint32_t id, const float value);
     CanMessage(uint32_t id, const int value);
     CanMessage(uint32_t id, const uint8_t* data, uint8_t len);
+    CanMessage();
     const twai_message_t& getFrame() const;
     CanDataType getDataType() const { return dataType; }
 
@@ -33,7 +35,7 @@ private:
     union {
         float asFloat;
         int32_t asInt32;
-        UINT8_t asUInt8;
+        uint8_t asUInt8;
         bool asBool;
         uint8_t asBytes[8];
     } value;
