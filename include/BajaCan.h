@@ -4,7 +4,7 @@
 #define BAJA_CAN_H
 
 #include "driver/twai.h"
-#include "string.h"
+#include <stdint.h>
 
 typedef enum {
     FLOAT,
@@ -19,7 +19,7 @@ typedef enum {
 class CanMessage {
 public:
     CanMessage(uint32_t id, const float value);
-    CanMessage(uint32_t id, const int value);
+    CanMessage(uint32_t id, const int32_t value);
     CanMessage(uint32_t id, const uint8_t* data, uint8_t len);
     CanMessage();
     const twai_message_t& getFrame() const;
@@ -27,37 +27,21 @@ public:
 
     uint32_t getId() const { return frame.identifier; }
 
-    // typed getters
-    float getFloat() const { return value.asFloat; }
-    int32_t getInt32() const { return value.asInt32; }
-    uint8_t getUInt8() const { return value.asUInt8; }
-    bool getBool() const { return value.asBool; }
-    // const uint8_t* getBytes() const { return value.asBytes; }
+    // Typed getters decode from frame bytes. Callers should check getDataType() first.
+    float getFloat() const;
+    int32_t getInt32() const;
+    uint8_t getUInt8() const;
+    bool getBool() const;
+    const uint8_t* getBytes() const { return frame.data; }
+    uint8_t getDataLength() const { return frame.data_length_code; }
 
     // setters
     void setDataType(CanDataType type) { dataType = type; }
     void setFrame(const twai_message_t& frame) { this->frame = frame; }
-    
-    void setValue(const uint8_t* data, uint8_t len) {
-        // Store raw data in union for typed getters
-        memset(&value, 0, sizeof(value)); // Clear previous value
-        if (len > sizeof(value.asBytes)) {
-            len = sizeof(value.asBytes); // Limit to max size of union
-        }
-        memcpy(value.asBytes, data, len);
-    }
-    
+
 private:
     CanDataType dataType;
     twai_message_t frame;
-    
-    union {
-        float asFloat;
-        int32_t asInt32;
-        uint8_t asUInt8;
-        bool asBool;
-        uint8_t asBytes[8];
-    } value;
 };
 
 

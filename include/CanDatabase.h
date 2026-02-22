@@ -1,18 +1,21 @@
 #pragma once
 #include "BajaCan.h"
-#include <vector>
+#include <stddef.h>
 
 typedef struct {
     uint32_t id;
     CanDataType type;
+    uint8_t dlc;
 } CanMessageDef; 
 
 
-const CanMessageDef ENGINE_RPM = {0x100, FLOAT};
-const CanMessageDef INT_DATA = {0x101, INT32};
+constexpr CanMessageDef ENGINE_RPM = {0x100, FLOAT, 4};
+constexpr CanMessageDef INT_DATA = {0x101, INT32, 4};
 
 
-const std::vector<CanMessageDef> canDatabase = {
+constexpr CanMessageDef canDatabase[] = {
     ENGINE_RPM,
     INT_DATA
 };
+
+constexpr size_t canDatabaseSize = sizeof(canDatabase) / sizeof(canDatabase[0]);

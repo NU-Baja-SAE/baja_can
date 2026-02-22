@@ -111,18 +111,22 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
     esp_err_t ret = readFrame(&frame, timeoutMs);
     if (ret == ESP_OK)
     {
-        // set the frame data in the message object for typed access later
+        // Always set the frame and start with a safe default type.
         message.setFrame(frame);
-        message.setValue(frame.data, frame.data_length_code); // Store raw data in union for typed getters
-        for (const auto& def : canDatabase) {
+        message.setDataType(BYTES);
+
+        for (size_t i = 0; i < canDatabaseSize; ++i)
+        {
+            const CanMessageDef& def = canDatabase[i];
             if (def.id == frame.identifier) {
-                message.setDataType(def.type); // Set the data type based on the database definition
+                // Reject malformed frames that do not contain enough bytes for the declared type.
+                if (frame.data_length_code < def.dlc)
+                {
+                    return ESP_ERR_INVALID_RESPONSE;
+                }
+                message.setDataType(def.type);
                 break;
             }
-        }
-        if (message.getDataType() == NONE) {
-        // If the message ID is not found in the database, save as bytes by default
-            message.setDataType(BYTES);
         }
     }
     return ret;
@@ -164,15 +168,11 @@ esp_err_t BajaCan::end()
  */
 CanMessage::CanMessage(uint32_t id, const float value)
 {
-    // store the value in the union for typed access later
-    this->value.asFloat = value;
-    this->dataType = FLOAT;
-
-
-    // set raw data in frame
-    this->frame.identifier = id;
-    this->frame.data_length_code = sizeof(float);
-    memcpy(this->frame.data, &value, sizeof(float));
+    memset(&frame, 0, sizeof(frame));
+    dataType = FLOAT;
+    frame.identifier = id;
+    frame.data_length_code = sizeof(float);
+    memcpy(frame.data, &value, sizeof(float));
 }
 
 /**
@@ -181,16 +181,13 @@ CanMessage::CanMessage(uint32_t id, const float value)
  * @param id ID of the CAN message
  * @param value Int value to send
  */
-CanMessage::CanMessage(uint32_t id, const int value)
+CanMessage::CanMessage(uint32_t id, const int32_t value)
 {
-    // store the value in the union for typed access later
-    this->value.asInt32 = value;
-    this->dataType = INT32;
-
-    // set raw data in frame
-    this->frame.identifier = id;
-    this->frame.data_length_code = sizeof(int);
-    memcpy(this->frame.data, &value, sizeof(int));
+    memset(&frame, 0, sizeof(frame));
+    dataType = INT32;
+    frame.identifier = id;
+    frame.data_length_code = sizeof(int32_t);
+    memcpy(frame.data, &value, sizeof(int32_t));
 }
 
 /**
@@ -202,13 +199,18 @@ CanMessage::CanMessage(uint32_t id, const int value)
  */
 CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
 {
-    // store the value in the union for typed access later
-    this->dataType = BYTES;
-    memcpy(this->value.asBytes, data, len);
+    memset(&frame, 0, sizeof(frame));
+    dataType = BYTES;
 
     frame.identifier = id;
-    frame.data_length_code = len;
-    memcpy(frame.data, data, len);
+
+    // TWAI payload is capped at 8 bytes.
+    const uint8_t clampedLen = (len > sizeof(frame.data)) ? sizeof(frame.data) : len;
+    frame.data_length_code = clampedLen;
+    if ((data != nullptr) && (clampedLen > 0U))
+    {
+        memcpy(frame.data, data, clampedLen);
+    }
 }
 
 CanMessage::CanMessage() : dataType(NONE)
@@ -222,4 +224,37 @@ const twai_message_t& CanMessage::getFrame() const
     return frame;
 }
 
+float CanMessage::getFloat() const
+{
+    float out = 0.0F;
+    if (frame.data_length_code >= sizeof(float))
+    {
+        memcpy(&out, frame.data, sizeof(float));
+    }
+    return out;
+}
+
+int32_t CanMessage::getInt32() const
+{
+    int32_t out = 0;
+    if (frame.data_length_code >= sizeof(int32_t))
+    {
+        memcpy(&out, frame.data, sizeof(int32_t));
+    }
+    return out;
+}
+
+uint8_t CanMessage::getUInt8() const
+{
+    if (frame.data_length_code >= 1U)
+    {
+        return frame.data[0];
+    }
+    return 0U;
+}
+
+bool CanMessage::getBool() const
+{
+    return getUInt8() != 0U;
+}
 
