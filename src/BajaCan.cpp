@@ -2,6 +2,8 @@
 #include "CanDatabase.h"
 #include "string.h"
 
+using namespace CanDatabase;
+
 /**
  * @brief Construct a new Baja Can:: Baja Can object
  *
