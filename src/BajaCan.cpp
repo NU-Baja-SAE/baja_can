@@ -32,6 +32,7 @@ esp_err_t BajaCan::begin()
         txPin,
         rxPin,
         TWAI_MODE_NORMAL);
+    g_config.rx_queue_len = 50;
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
@@ -135,6 +136,29 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
 }
 
 /**
+ * @brief Gets the number of messages currently in the TWAI RX queue.
+ *
+ * @param length Reference to int to store the length
+ * @return esp_err_t ESP_OK on success, other esp_err_t from twai_get_status_info
+ */
+esp_err_t BajaCan::getRXQueueLength(int& length)
+{
+    if (!initialized)
+    {
+        return ESP_ERR_INVALID_STATE; // Not initialized
+    }
+    twai_status_info_t status;
+    esp_err_t ret = twai_get_status_info(&status);
+    if (ret != ESP_OK)    {
+        return -1; // Error getting status
+    }
+    length = status.msgs_to_rx;
+    return ret;
+}
+
+
+
+/**
  * @brief Stops and uninstalls the TWAI driver.
  *
  * @return esp_err_t from twai_stop and twai_driver_uninstall
@@ -157,6 +181,7 @@ esp_err_t BajaCan::end()
     }
     return ret;
 }
+
 
 
 
