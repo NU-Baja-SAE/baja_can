@@ -70,10 +70,13 @@ Message I/O:
 - `esp_err_t readMessage(CanMessage& message, uint32_t timeoutMs)`
 
 `readMessage` behavior:
-- Reads one frame and stores it in `CanMessage`.
+- Reads one frame from the RX queue and stores it in `CanMessage`.
 - Uses `canDatabase` (`/include/CanDatabase.h`) to assign `CanDataType` by message ID.
 - Defaults to `BYTES` when ID is not in the database.
 - Returns `ESP_ERR_INVALID_RESPONSE` if received DLC is shorter than the database definition for that ID.
+
+Stauts:
+- `esp_err_t getRXQueueLength(int& length)` -> Gets the available messages in the RX Queue
 
 Common return values:
 - `ESP_OK`
