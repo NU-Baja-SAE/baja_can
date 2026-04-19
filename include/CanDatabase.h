@@ -15,6 +15,9 @@ namespace CanDatabase
     // All CAN IDs follow this scheme, first three bits in binary represent sender (100) = ECVT, (010) = DAQ, (001) = HUD.
     //Next three bits follow the same scheme but for receiver (more than one receiver possible) and then last 5 bits are message ids (32 possibilities)
     constexpr uint32_t MASK = 0b11100011111;
+    constexpr uint32_t ECVT_CODE = 0b00010000000;
+    constexpr uint32_t DAQ_CODE = 0b00001000000;
+    constexpr uint32_t HUD_CODE = 0b00000100000;
 
 
     constexpr CanMessageDef ENGINE_RPM = {0x441, FLOAT, sizeof(float)};

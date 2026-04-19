@@ -20,7 +20,7 @@ BajaCan::BajaCan(gpio_num_t tx, gpio_num_t rx)
  *
  * @return esp_err_t from twai_driver_install and twai_start
  */
-esp_err_t BajaCan::begin()
+esp_err_t BajaCan::begin(uint32_t acceptanceCode)
 {
     if (initialized)
     {
@@ -35,6 +35,12 @@ esp_err_t BajaCan::begin()
     g_config.rx_queue_len = 50;
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+   
+    if (acceptanceCode != 0) {
+        f_config.acceptance_code = acceptanceCode;
+        f_config.acceptance_mask = MASK; // Only consider bits in the mask for filtering
+        f_config.single_filter = true; // Use single filter mode to apply the same filter to
+    }
 
     // Install TWAI driver
     esp_err_t ret = twai_driver_install(&g_config, &t_config, &f_config);

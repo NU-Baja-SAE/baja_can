@@ -48,7 +48,7 @@ private:
 class BajaCan {
 public:
     BajaCan(gpio_num_t tx, gpio_num_t rx);
-    esp_err_t begin();
+    esp_err_t begin(uint32_t acceptanceCode = 0);
     esp_err_t readFrame(twai_message_t* frame, uint32_t timeoutMs);
     esp_err_t writeFrame(const twai_message_t* frame, uint32_t timeoutMs);
     esp_err_t writeMessage(const CanMessage& message, uint32_t timeoutMs);
