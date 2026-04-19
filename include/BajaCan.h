@@ -53,6 +53,7 @@ public:
     esp_err_t writeFrame(const twai_message_t* frame, uint32_t timeoutMs);
     esp_err_t writeMessage(const CanMessage& message, uint32_t timeoutMs);
     esp_err_t readMessage(CanMessage& message, uint32_t timeoutMs);
+    esp_err_t getRXQueueLength(int& length);
     esp_err_t end();
 
 private:
