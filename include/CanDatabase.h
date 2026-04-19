@@ -20,12 +20,11 @@ namespace CanDatabase
     constexpr CanMessageDef MODE = {0x443, INT32, sizeof(uint32_t)};
     constexpr CanMessageDef STATUS = {0x444, INT32, sizeof(uint32_t)};
     constexpr CanMessageDef TEMPERATURE = {0x445, FLOAT, sizeof(float)};
-    constexpr CanMessageDef FUEL_LEVEL = {0x222, FLOAT, sizeof(float)};
-    constexpr CanMessageDef LINEAR_SPEED = {0x221, FLOAT, sizeof(float)};
-    constexpr CanMessageDef BRAKE_POT = {0x141, FLOAT, sizeof(float)};
-    constexpr CanMessageDef FRONT_WHEELS = {0x142, FLOAT, sizeof(float)};
     constexpr CanMessageDef MOTOR_SETPOINT = {0x446, INT32, sizeof(int32_t)};
 
+    constexpr CanMessageDef FUEL_LEVEL = {0x222, FLOAT, sizeof(float)};
+    constexpr CanMessageDef LINEAR_SPEED = {0x221, FLOAT, sizeof(float)};
+    
     constexpr CanMessageDef BRAKE_POT = {0x141, FLOAT, sizeof(float)};
     constexpr CanMessageDef FRONT_LEFT_WHEEL_SPEED = {0x142, FLOAT, sizeof(float)};
     constexpr CanMessageDef FRONT_RIGHT_WHEEL_SPEED = {0x143, FLOAT, sizeof(float)};
@@ -37,9 +36,6 @@ namespace CanDatabase
         STATUS,
         TEMPERATURE,
         FUEL_LEVEL,
-        LINEAR_SPEED,
-        BRAKE_POT,
-        FRONT_WHEELS,
         MOTOR_SETPOINT,
         FUEL_LEVEL,
         LINEAR_SPEED,
