@@ -26,6 +26,7 @@ namespace CanDatabase
     constexpr CanMessageDef STATUS = {0x444, UINT8, sizeof(uint8_t)};
     constexpr CanMessageDef TEMPERATURE = {0x445, FLOAT, sizeof(float)};
     constexpr CanMessageDef MOTOR_SETPOINT = {0x446, INT32, sizeof(int32_t)};
+    constexpr CanMessageDef MOTOR_POSITION = {0x447, INT32, sizeof(int32_t)};
 
     constexpr CanMessageDef FUEL_LEVEL = {0x222, FLOAT, sizeof(float)};
     constexpr CanMessageDef LINEAR_SPEED = {0x221, FLOAT, sizeof(float)};
