@@ -6,6 +6,9 @@
 #include "driver/twai.h"
 #include <stdint.h>
 
+/**
+ * @brief Supported CAN payload encodings.
+ */
 typedef enum {
     FLOAT,
     INT32,
@@ -16,6 +19,9 @@ typedef enum {
 } CanDataType;
 
 
+/**
+ * @brief Typed wrapper around a TWAI frame.
+ */
 class CanMessage {
 public:
     CanMessage(uint32_t id, const float value);
@@ -27,7 +33,9 @@ public:
 
     uint32_t getId() const { return frame.identifier; }
 
-    // Typed getters decode from frame bytes. Callers should check getDataType() first.
+    /**
+     * @brief Typed getters decode from frame bytes; check getDataType() first.
+     */
     float getFloat() const;
     int32_t getInt32() const;
     uint8_t getUInt8() const;
@@ -35,7 +43,6 @@ public:
     const uint8_t* getBytes() const { return frame.data; }
     uint8_t getDataLength() const { return frame.data_length_code; }
 
-    // setters
     void setDataType(CanDataType type) { dataType = type; }
     void setFrame(const twai_message_t& frame) { this->frame = frame; }
 
@@ -45,6 +52,9 @@ private:
 };
 
 
+/**
+ * @brief Thin wrapper over the ESP32 TWAI driver.
+ */
 class BajaCan {
 public:
     BajaCan(gpio_num_t tx, gpio_num_t rx);

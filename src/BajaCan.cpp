@@ -5,10 +5,9 @@
 using namespace CanDatabase;
 
 /**
- * @brief Construct a new Baja Can:: Baja Can object
- *
- * @param tx Transmit pin
- * @param rx Receive pin
+ * @brief Construct a CAN interface wrapper.
+ * @param tx Transmit pin.
+ * @param rx Receive pin.
  */
 BajaCan::BajaCan(gpio_num_t tx, gpio_num_t rx)
     : initialized(false), txPin(tx), rxPin(rx)
@@ -16,9 +15,8 @@ BajaCan::BajaCan(gpio_num_t tx, gpio_num_t rx)
 }
 
 /**
- * @brief Installs twai driver and starts it. Use default config.
- *
- * @return esp_err_t from twai_driver_install and twai_start
+ * @brief Install and start the TWAI driver.
+ * @return esp_err_t from twai_driver_install and twai_start.
  */
 esp_err_t BajaCan::begin(uint32_t acceptanceCode)
 {
@@ -27,7 +25,7 @@ esp_err_t BajaCan::begin(uint32_t acceptanceCode)
         return ESP_OK; // Already initialized
     }
 
-    // Default configurations
+    // Default configurations.
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(
         txPin,
         rxPin,
@@ -39,17 +37,17 @@ esp_err_t BajaCan::begin(uint32_t acceptanceCode)
     if (acceptanceCode != 0) {
         f_config.acceptance_code = acceptanceCode;
         f_config.acceptance_mask = MASK; // Only consider bits in the mask for filtering
-        f_config.single_filter = true; // Use single filter mode to apply the same filter to
+        f_config.single_filter = true; // Use single filter mode to apply the same filter to all IDs.
     }
 
-    // Install TWAI driver
+    // Install TWAI driver.
     esp_err_t ret = twai_driver_install(&g_config, &t_config, &f_config);
     if (ret != ESP_OK)
     {
         return ret;
     }
 
-    // Start TWAI driver
+    // Start TWAI driver.
     ret = twai_start();
     if (ret == ESP_OK)
     {
@@ -59,13 +57,11 @@ esp_err_t BajaCan::begin(uint32_t acceptanceCode)
 }
 
 /**
- * @brief Reads a CAN frame from the bus with timeout. This is a blocking call.
- *
- * @param frame Pointer to twai_message_t to store received frame
- * @param timeoutMs Timeout in milliseconds, set to zero for non blocking, or portMAX_DELAY for blocking indefinitely
- *
+ * @brief Read a CAN frame from the bus with timeout.
+ * @param frame Pointer to twai_message_t to store received frame.
+ * @param timeoutMs Timeout in milliseconds (0 for non-blocking).
  * @return esp_err_t ESP_OK on success, ESP_ERR_TIMEOUT on timeout,
- *                    other esp_err_t from twai_receive
+ *         other esp_err_t from twai_receive.
  */
 esp_err_t BajaCan::readFrame(twai_message_t* frame, uint32_t timeoutMs)
 {
@@ -78,12 +74,10 @@ esp_err_t BajaCan::readFrame(twai_message_t* frame, uint32_t timeoutMs)
 
 
 /**
- * @brief Writes a CAN frame to the bus with timeout. This is a blocking call.
- *
- * @param frame Pointer to twai_message_t to send
- * @param timeoutMs Timeout in milliseconds
- *
- * @return esp_err_t ESP_OK on success, other esp_err_t from twai_transmit
+ * @brief Write a CAN frame to the bus with timeout.
+ * @param frame Pointer to twai_message_t to send.
+ * @param timeoutMs Timeout in milliseconds.
+ * @return esp_err_t ESP_OK on success, other esp_err_t from twai_transmit.
  */
 esp_err_t BajaCan::writeFrame(const twai_message_t* frame, uint32_t timeoutMs)
 {
@@ -95,11 +89,10 @@ esp_err_t BajaCan::writeFrame(const twai_message_t* frame, uint32_t timeoutMs)
 }   
 
 /**
- * @brief send a CanMessage object
- * 
- * @param message Reference to CanMessage object to send
- * @param timeoutMs Timeout in milliseconds
- * @return esp_err_t ESP_OK on success, other esp_err_t from twai_transmit
+ * @brief Send a typed CanMessage object.
+ * @param message CanMessage object to send.
+ * @param timeoutMs Timeout in milliseconds.
+ * @return esp_err_t ESP_OK on success, other esp_err_t from twai_transmit.
  */
 esp_err_t BajaCan::writeMessage(const CanMessage& message, uint32_t timeoutMs)
 {
@@ -107,12 +100,11 @@ esp_err_t BajaCan::writeMessage(const CanMessage& message, uint32_t timeoutMs)
 }
 
 /**
- * @brief read a CanMessage object
- * 
- * @param message Reference to CanMessage object to fill
- * @param timeoutMs Timeout in milliseconds
+ * @brief Read a typed CanMessage object.
+ * @param message CanMessage object to fill.
+ * @param timeoutMs Timeout in milliseconds.
  * @return esp_err_t ESP_OK on success, ESP_ERR_TIMEOUT on timeout,
- *                    other esp_err_t from twai_receive
+ *         other esp_err_t from twai_receive.
  */
 esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
 {
@@ -142,10 +134,9 @@ esp_err_t BajaCan::readMessage(CanMessage& message, uint32_t timeoutMs)
 }
 
 /**
- * @brief Gets the number of messages currently in the TWAI RX queue.
- *
- * @param length Reference to int to store the length
- * @return esp_err_t ESP_OK on success, other esp_err_t from twai_get_status_info
+ * @brief Get the number of messages currently in the TWAI RX queue.
+ * @param length Reference to int to store the length.
+ * @return esp_err_t ESP_OK on success, other esp_err_t from twai_get_status_info.
  */
 esp_err_t BajaCan::getRXQueueLength(int& length)
 {
@@ -165,9 +156,8 @@ esp_err_t BajaCan::getRXQueueLength(int& length)
 
 
 /**
- * @brief Stops and uninstalls the TWAI driver.
- *
- * @return esp_err_t from twai_stop and twai_driver_uninstall
+ * @brief Stop and uninstall the TWAI driver.
+ * @return esp_err_t from twai_stop and twai_driver_uninstall.
  */
 esp_err_t BajaCan::end()
 {
@@ -194,10 +184,9 @@ esp_err_t BajaCan::end()
 // CanMessage class implementation
 
 /**
- * @brief Construct a new Can Message:: Can Message object with float data
- * 
- * @param id ID of the CAN message
- * @param value Float value to send
+ * @brief Construct a CanMessage with float data.
+ * @param id CAN identifier.
+ * @param value Float value to send.
  */
 CanMessage::CanMessage(uint32_t id, const float value)
 {
@@ -209,10 +198,9 @@ CanMessage::CanMessage(uint32_t id, const float value)
 }
 
 /**
- * @brief Construct a new Can Message:: Can Message object with int data
- * 
- * @param id ID of the CAN message
- * @param value Int value to send
+ * @brief Construct a CanMessage with int32 data.
+ * @param id CAN identifier.
+ * @param value Int value to send.
  */
 CanMessage::CanMessage(uint32_t id, const int32_t value)
 {
@@ -224,11 +212,10 @@ CanMessage::CanMessage(uint32_t id, const int32_t value)
 }
 
 /**
- * @brief Construct a new Can Message:: Can Message object with raw data
- * 
- * @param id ID of the CAN message
- * @param data Pointer to data bytes
- * @param len Length of data in bytes
+ * @brief Construct a CanMessage with raw data bytes.
+ * @param id CAN identifier.
+ * @param data Pointer to data bytes.
+ * @param len Length of data in bytes.
  */
 CanMessage::CanMessage(uint32_t id, const uint8_t* data, uint8_t len)
 {
@@ -251,7 +238,9 @@ CanMessage::CanMessage() : dataType(NONE)
     memset(&frame, 0, sizeof(frame));
 }
 
-// Getter for the underlying twai_message_t frame
+/**
+ * @brief Get the underlying twai_message_t frame.
+ */
 const twai_message_t& CanMessage::getFrame() const
 {
     return frame;
@@ -290,4 +279,3 @@ bool CanMessage::getBool() const
 {
     return getUInt8() != 0U;
 }
-
